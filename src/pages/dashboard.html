@@ -1,0 +1,38 @@
+<!-- DASHBOARD VIEW -->
+<div id="dashboardView">
+    <div id="offlineAlert" class="status-badge nao_conforme" style="display:none; margin-bottom:1rem;">
+        ⚠️ Você está offline. As inspeções serão salvas localmente.
+    </div>
+
+    <!-- FILTRO DE PERÍODO -->
+    <div class="period-filter glass">
+        <div class="period-header">
+            <h3 class="period-title">📅 Período</h3>
+            <div class="period-year-nav">
+                <button class="year-nav-btn" id="prevYear" onclick="mudarAno(-1)">‹</button>
+                <span id="anoAtual" class="year-display">2026</span>
+                <button class="year-nav-btn" id="nextYear" onclick="mudarAno(1)">›</button>
+            </div>
+        </div>
+        <div class="period-months" id="periodMonths">
+            <!-- Meses gerados via JS -->
+        </div>
+        <div class="period-info" id="periodInfo">
+            <span class="period-label">Período selecionado:</span>
+            <span class="period-value" id="periodValue">-</span>
+        </div>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Buscar placa...">
+        <select id="filterRoute">
+            <option value="">Todas as Rotas</option>
+        </select>
+    </div>
+
+    <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem; color: var(--text-secondary);">Veículos Identificados
+    </h2>
+    <div id="listaVeiculos" class="grid">
+        <!-- Veículos serão inseridos aqui via JS -->
+    </div>
+</div>

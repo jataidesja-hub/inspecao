@@ -1,0 +1,17 @@
+<!-- MODAL DE DETALHES -->
+<div id="modalDetalhes" class="modal" style="display: none;">
+    <div class="modal-content glass fade-in">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h2 id="modalTitle">Detalhes da Inspeção</h2>
+            <span class="close-btn" onclick="fecharModal()">&times;</span>
+        </div>
+        <div id="modalBody">
+            <!-- Conteúdo inserido via JS -->
+        </div>
+        <div style="margin-top:2rem; display:flex; gap:1rem;">
+            <button id="btnReimprimir" class="btn btn-primary" style="flex:1">Reimprimir PDF</button>
+            <button class="btn" style="flex:1; background:rgba(255,255,255,0.1); color:white;"
+                onclick="fecharModal()">Fechar</button>
+        </div>
+    </div>
+</div>

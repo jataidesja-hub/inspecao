@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Inspeção de Veículos</title>
+    <meta name="description" content="Inspeção Pro - Sistema profissional de inspeção de veículos de terceiros com relatórios PDF">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00d2ff">
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+    <div class="container fade-in">
+        <header>
+            <div style="display:flex; flex-direction:column; gap:0.2rem;">
+                <h1>Inspeção Pro</h1>
+                <div id="statsCounter" class="stats-badge">
+                    Concluídos: <span id="countFeitos">0</span> | Faltam: <span id="countFaltam">0</span>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <button class="nav-btn active" onclick="切换View('dashboard')">Início</button>
+                <button class="nav-btn" onclick="切换View('historico')">Histórico</button>
+                <button id="btnInstall" class="btn btn-primary"
+                    style="display:none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">📥 Instalar</button>
+            </nav>
+        </header>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboardView">
+            <div id="offlineAlert" class="status-badge nao_conforme" style="display:none; margin-bottom:1rem;">
+                ⚠️ Você está offline. As inspeções serão salvas localmente.
+            </div>
+
+            <!-- FILTRO DE PERÍODO -->
+            <div class="period-filter glass">
+                <div class="period-header">
+                    <h3 class="period-title">📅 Período</h3>
+                    <div class="period-year-nav">
+                        <button class="year-nav-btn" id="prevYear" onclick="mudarAno(-1)">‹</button>
+                        <span id="anoAtual" class="year-display">2026</span>
+                        <button class="year-nav-btn" id="nextYear" onclick="mudarAno(1)">›</button>
+                    </div>
+                </div>
+                <div class="period-months" id="periodMonths">
+                    <!-- Meses gerados via JS -->
+                </div>
+                <div class="period-info" id="periodInfo">
+                    <span class="period-label">Período selecionado:</span>
+                    <span class="period-value" id="periodValue">-</span>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Buscar placa...">
+                <select id="filterRoute">
+                    <option value="">Todas as Rotas</option>
+                </select>
+            </div>
+
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem; color: var(--text-secondary);">Veículos Identificados
+            </h2>
+            <div id="listaVeiculos" class="grid">
+                <!-- Veículos serão inseridos aqui via JS -->
+            </div>
+        </div>
+
+        <!-- INSPEÇÃO VIEW -->
+        <div id="inspecaoView" style="display: none;">
+            <div style="display:flex; align-items:center; gap:1rem; margin-bottom:2rem;">
+                <button id="backBtn" class="btn" style="background:rgba(255,255,255,0.1); color:white;">←
+                    Voltar</button>
+                <h2 id="inspecaoTitle">Inspeção</h2>
+            </div>
+
+            <div class="card glass">
+                <p id="inspecaoFornecedor"
+                    style="margin-bottom: 1.5rem; color: var(--primary-color); font-weight: 600;"></p>
+
+                <!-- Período selecionado na inspeção -->
+                <div class="period-badge-inspecao" id="periodoBadgeInspecao">
+                    <span class="period-badge-label">Período:</span>
+                    <span class="period-badge-value" id="periodoInspecaoValue">-</span>
+                </div>
+
+                <form id="formInspecao">
+                    <div class="form-section">
+                        <label>Status Geral do Veículo (Automático)</label>
+                        <div id="displayStatusGeral" class="status-badge conforme">Conforme (Tudo OK)</div>
+                        <input type="hidden" name="status" id="inputStatusGeral" value="conforme">
+                    </div>
+
+                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <!-- Mecânica -->
+                        <div class="form-section">
+                            <label>Mecânica</label>
+                            <div class="status-toggle">
+                                <div id="btn_mecanica_ok" class="status-btn active-ok"
+                                    onclick="toggleStatus('mecanica', 'OK')">OK</div>
+                                <div id="btn_mecanica_fail" class="status-btn"
+                                    onclick="toggleStatus('mecanica', 'FAIL')">Não</div>
+                            </div>
+                            <input type="hidden" name="mecanica_status" id="input_mecanica_status" value="OK">
+                            <div id="detail_mecanica" class="detail-field">
+                                <input type="text" name="mecanica_detalhe"
+                                    placeholder="Descreva o problema mecânico...">
+                            </div>
+                        </div>
+                        <!-- Elétrica -->
+                        <div class="form-section">
+                            <label>Elétrica</label>
+                            <div class="status-toggle">
+                                <div id="btn_eletrica_ok" class="status-btn active-ok"
+                                    onclick="toggleStatus('eletrica', 'OK')">OK</div>
+                                <div id="btn_eletrica_fail" class="status-btn"
+                                    onclick="toggleStatus('eletrica', 'FAIL')">Não</div>
+                            </div>
+                            <input type="hidden" name="eletrica_status" id="input_eletrica_status" value="OK">
+                            <div id="detail_eletrica" class="detail-field">
+                                <input type="text" name="eletrica_detalhe"
+                                    placeholder="Descreva o problema elétrico...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label>Outros Itens / Equipamentos</label>
+                        <div class="status-toggle">
+                            <div id="btn_outros_ok" class="status-btn active-ok"
+                                onclick="toggleStatus('outros', 'OK')">
+                                OK</div>
+                            <div id="btn_outros_fail" class="status-btn" onclick="toggleStatus('outros', 'FAIL')">Não
+                            </div>
+                        </div>
+                        <input type="hidden" name="outros_status" id="input_outros_status" value="OK">
+                        <div id="detail_outros" class="detail-field">
+                            <input type="text" name="outros_detalhe"
+                                placeholder="Ex: Pneus, Limpeza, Equipamentos...">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label>Pontuar Problemas / Observações Detalhadas</label>
+                        <textarea name="observacoes" rows="4"
+                            placeholder="Descreva aqui os detalhes das não conformidades identificadas..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; font-size: 1.1rem; padding: 1rem;">
+                        Finalizar e Gerar Relatório PDF
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- HISTÓRICO VIEW -->
+        <div id="historicoView" style="display: none;">
+            <div class="search-bar">
+                <select id="filterPeriodoHistorico">
+                    <option value="">Todos os Períodos</option>
+                </select>
+                <select id="filterSupplier">
+                    <option value="">Todos os Transportadores</option>
+                </select>
+                <button class="btn btn-primary" onclick="gerarRelatorioFornecedor()">
+                    Imprimir Relatório por Transportador
+                </button>
+            </div>
+
+            <div class="card glass">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem;">Histórico de Inspeções</h2>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Período</th>
+                                <th>Data</th>
+                                <th>Placa</th>
+                                <th>Transportador</th>
+                                <th>Status</th>
+                                <th>Detalhes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaHistorico">
+                            <!-- Inserido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE DETALHES -->
+        <div id="modalDetalhes" class="modal" style="display: none;">
+            <div class="modal-content glass fade-in">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <h2 id="modalTitle">Detalhes da Inspeção</h2>
+                    <span class="close-btn" onclick="fecharModal()">&times;</span>
+                </div>
+                <div id="modalBody">
+                    <!-- Conteúdo inserido via JS -->
+                </div>
+                <div style="margin-top:2rem; display:flex; gap:1rem;">
+                    <button id="btnReimprimir" class="btn btn-primary" style="flex:1">Reimprimir PDF</button>
+                    <button class="btn" style="flex:1; background:rgba(255,255,255,0.1); color:white;"
+                        onclick="fecharModal()">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÓDULOS JS (ordem importa) -->
+    <script src="src/modules/utils.js?v=2"></script>
+    <script src="src/modules/api.js?v=2"></script>
+    <script src="src/modules/periodos.js?v=2"></script>
+    <script src="src/modules/offline.js?v=2"></script>
+    <script src="src/modules/pdf.js?v=2"></script>
+    <script src="script.js?v=2"></script>
+</body>
+
+</html>

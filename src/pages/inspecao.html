@@ -1,0 +1,79 @@
+<!-- INSPEÇÃO VIEW -->
+<div id="inspecaoView" style="display: none;">
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:2rem;">
+        <button id="backBtn" class="btn" style="background:rgba(255,255,255,0.1); color:white;">←
+            Voltar</button>
+        <h2 id="inspecaoTitle">Inspeção</h2>
+    </div>
+
+    <div class="card glass">
+        <p id="inspecaoFornecedor"
+            style="margin-bottom: 1.5rem; color: var(--primary-color); font-weight: 600;"></p>
+
+        <form id="formInspecao">
+            <div class="form-section">
+                <label>Status Geral do Veículo (Automático)</label>
+                <div id="displayStatusGeral" class="status-badge conforme">Conforme (Tudo OK)</div>
+                <input type="hidden" name="status" id="inputStatusGeral" value="conforme">
+            </div>
+
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <!-- Mecânica -->
+                <div class="form-section">
+                    <label>Mecânica</label>
+                    <div class="status-toggle">
+                        <div id="btn_mecanica_ok" class="status-btn active-ok"
+                            onclick="toggleStatus('mecanica', 'OK')">OK</div>
+                        <div id="btn_mecanica_fail" class="status-btn"
+                            onclick="toggleStatus('mecanica', 'FAIL')">Não</div>
+                    </div>
+                    <input type="hidden" name="mecanica_status" id="input_mecanica_status" value="OK">
+                    <div id="detail_mecanica" class="detail-field">
+                        <input type="text" name="mecanica_detalhe"
+                            placeholder="Descreva o problema mecânico...">
+                    </div>
+                </div>
+                <!-- Elétrica -->
+                <div class="form-section">
+                    <label>Elétrica</label>
+                    <div class="status-toggle">
+                        <div id="btn_eletrica_ok" class="status-btn active-ok"
+                            onclick="toggleStatus('eletrica', 'OK')">OK</div>
+                        <div id="btn_eletrica_fail" class="status-btn"
+                            onclick="toggleStatus('eletrica', 'FAIL')">Não</div>
+                    </div>
+                    <input type="hidden" name="eletrica_status" id="input_eletrica_status" value="OK">
+                    <div id="detail_eletrica" class="detail-field">
+                        <input type="text" name="eletrica_detalhe"
+                            placeholder="Descreva o problema elétrico...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label>Outros Itens / Equipamentos</label>
+                <div class="status-toggle">
+                    <div id="btn_outros_ok" class="status-btn active-ok" onclick="toggleStatus('outros', 'OK')">
+                        OK</div>
+                    <div id="btn_outros_fail" class="status-btn" onclick="toggleStatus('outros', 'FAIL')">Não
+                    </div>
+                </div>
+                <input type="hidden" name="outros_status" id="input_outros_status" value="OK">
+                <div id="detail_outros" class="detail-field">
+                    <input type="text" name="outros_detalhe" placeholder="Ex: Pneus, Limpeza, Equipamentos...">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label>Pontuar Problemas / Observações Detalhadas</label>
+                <textarea name="observacoes" rows="4"
+                    placeholder="Descreva aqui os detalhes das não conformidades identificadas..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; font-size: 1.1rem; padding: 1rem;">
+                Finalizar e Gerar Relatório PDF
+            </button>
+        </form>
+    </div>
+</div>

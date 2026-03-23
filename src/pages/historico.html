@@ -1,0 +1,35 @@
+<!-- HISTÓRICO VIEW -->
+<div id="historicoView" style="display: none;">
+    <div class="search-bar">
+        <select id="filterPeriodoHistorico">
+            <option value="">Todos os Períodos</option>
+        </select>
+        <select id="filterSupplier">
+            <option value="">Todos os Transportadores</option>
+        </select>
+        <button class="btn btn-primary" onclick="gerarRelatorioFornecedor()">
+            Imprimir Relatório por Transportador
+        </button>
+    </div>
+
+    <div class="card glass">
+        <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem;">Histórico de Inspeções</h2>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Período</th>
+                        <th>Data</th>
+                        <th>Placa</th>
+                        <th>Transportador</th>
+                        <th>Status</th>
+                        <th>Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody id="listaHistorico">
+                    <!-- Inserido via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
