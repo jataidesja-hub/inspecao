@@ -57,14 +57,15 @@ function gerarPDF(dados) {
  * Gera relatório PDF por fornecedor com período
  */
 function gerarRelatorioFornecedor() {
-    const fornecedor = filterSupplier.value;
-    if (!fornecedor) return;
+    const fornecedor = filterSupplier ? filterSupplier.value : '';
 
     const periodoHistorico = document.getElementById('filterPeriodoHistorico');
     const periodoFiltro = periodoHistorico ? periodoHistorico.value : '';
 
-    // Filtra todas as inspeções deste transportador
-    let todasDoFornecedor = historicoInspecoes.filter(ins => ins.fornecedor === fornecedor);
+    // Filtra pelo fornecedor caso haja um selecionado, senão pega todos
+    let todasDoFornecedor = fornecedor 
+        ? historicoInspecoes.filter(ins => ins.fornecedor === fornecedor) 
+        : [...historicoInspecoes];
 
     // Se houver filtro de período no histórico, aplica
     if (periodoFiltro) {
@@ -74,7 +75,12 @@ function gerarRelatorioFornecedor() {
         });
     }
 
-    // Agrupa por placa mantendo apenas a última
+    if (todasDoFornecedor.length === 0) {
+        alert("Nenhuma inspeção encontrada para gerar o relatório.");
+        return;
+    }
+
+    // Agrupa por placa mantendo apenas a última inspeção de cada placa
     const ultimasPorPlaca = {};
     todasDoFornecedor.forEach(ins => {
         ultimasPorPlaca[ins.placa] = ins;
@@ -86,7 +92,8 @@ function gerarRelatorioFornecedor() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.text(`Transportador: ${fornecedor}`, 14, 15);
+    const tituloDoc = fornecedor ? `Transportador: ${fornecedor}` : `Relatório Geral de Frota`;
+    doc.text(tituloDoc, 14, 15);
     doc.setFontSize(10);
     doc.text(`Emitido em: ${new Date().toLocaleDateString('pt-BR')}`, 14, 22);
     
@@ -103,6 +110,7 @@ function gerarRelatorioFornecedor() {
         currentY = adicionarBlocoVeiculo(doc, ins, currentY);
     });
 
-    const suffix = periodoFiltro ? `_${periodoFiltro.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
-    doc.save(`Relatorio_Frota_${fornecedor}${suffix}.pdf`);
+    const suffixPeriodo = periodoFiltro ? `_${periodoFiltro.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
+    const suffixFornecedor = fornecedor ? `_${fornecedor}` : '_Geral';
+    doc.save(`Relatorio_Frota${suffixFornecedor}${suffixPeriodo}.pdf`);
 }
