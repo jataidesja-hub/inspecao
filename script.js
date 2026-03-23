@@ -195,6 +195,16 @@ function 切换View(view) {
         if (periodoValue) {
             periodoValue.textContent = periodoAtual.label;
         }
+        
+        // Define a data de hoje como padrão no input
+        const dataInput = document.getElementById('dataInspecao');
+        if (dataInput) {
+            const hoje = new Date();
+            const yyyy = hoje.getFullYear();
+            const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+            const dd = String(hoje.getDate()).padStart(2, '0');
+            dataInput.value = `${yyyy}-${mm}-${dd}`;
+        }
     } else if (view === 'historico') {
         historicoView.style.display = 'block';
         document.querySelector('button[onclick*="historico"]').classList.add('active');
@@ -387,10 +397,21 @@ async function salvarInspecao(e) {
         return detalhe && detalhe.trim() !== '' ? "Falha: " + detalhe : "Falha: (Não especificada)";
     };
 
+    let dataObj = new Date();
+    const dataInputVal = formData.get('dataInspecao');
+    if (dataInputVal) {
+        // Input do tipo date retorna YYYY-MM-DD
+        const parts = dataInputVal.split('-');
+        if (parts.length === 3) {
+            dataObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        }
+    }
+    const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+
     const periodoAtual = getPeriodoAtual();
 
     const payload = {
-        data: new Date().toLocaleDateString('pt-BR'),
+        data: dataFormatada,
         periodo: periodoAtual.labelCurto,
         periodo_completo: periodoAtual.label,
         placa: veiculoSelecionado.placa,
