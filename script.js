@@ -267,14 +267,55 @@ function renderizarHistorico() {
     
     let dadosHistorico = [...historicoInspecoes];
 
-    // Filtra por período se selecionado no histórico
+    // Filtros visuais
     const periodoFiltro = filterPeriodoHistorico ? filterPeriodoHistorico.value : '';
-    if (periodoFiltro) {
-        dadosHistorico = dadosHistorico.filter(ins => {
-            const periodo = getPeriodoCompletoDaData(formatarData(ins.data));
-            return periodo === periodoFiltro;
-        });
+    const fornecedorFiltro = filterSupplier ? filterSupplier.value : '';
+    const dtInicioInput = document.getElementById('filterDataInicio');
+    const dtFimInput = document.getElementById('filterDataFim');
+    const dtInicioStr = dtInicioInput ? dtInicioInput.value : '';
+    const dtFimStr = dtFimInput ? dtFimInput.value : '';
+
+    let dtInicio = null;
+    let dtFim = null;
+
+    if (dtInicioStr) {
+        const p = dtInicioStr.split('-');
+        dtInicio = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0);
     }
+    if (dtFimStr) {
+        const p = dtFimStr.split('-');
+        dtFim = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59);
+    }
+
+    dadosHistorico = dadosHistorico.filter(ins => {
+        // 1. Filtro Período
+        if (periodoFiltro) {
+            const periodo = getPeriodoCompletoDaData(formatarData(ins.data));
+            if (periodo !== periodoFiltro) return false;
+        }
+
+        // 2. Filtro Fornecedor
+        if (fornecedorFiltro && ins.fornecedor !== fornecedorFiltro) {
+            return false;
+        }
+
+        // 3. Filtro Data
+        if (dtInicio || dtFim) {
+            // A data armazenada está em pt-BR (dd/mm/yyyy). formatarData cuida disso.
+            // Para comparar corretamente, precisamos parsear a data da inspeção p/ Date object
+            const dFormat = formatarData(ins.data);
+            if (dFormat && dFormat.includes('/')) {
+                const parts = dFormat.split(' ')[0].split('/'); // Pega só a data
+                if (parts.length === 3) {
+                    const insDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 12, 0, 0);
+                    if (dtInicio && insDate < dtInicio) return false;
+                    if (dtFim && insDate > dtFim) return false;
+                }
+            }
+        }
+
+        return true;
+    });
 
     if (dadosHistorico.length === 0) {
         listaHistorico.innerHTML = '<tr><td colspan="6" style="text-align:center">Nenhuma inspeção encontrada.</td></tr>';

@@ -58,9 +58,25 @@ function gerarPDF(dados) {
  */
 function gerarRelatorioFornecedor() {
     const fornecedor = filterSupplier ? filterSupplier.value : '';
-
     const periodoHistorico = document.getElementById('filterPeriodoHistorico');
     const periodoFiltro = periodoHistorico ? periodoHistorico.value : '';
+    
+    const dtInicioInput = document.getElementById('filterDataInicio');
+    const dtFimInput = document.getElementById('filterDataFim');
+    const dtInicioStr = dtInicioInput ? dtInicioInput.value : '';
+    const dtFimStr = dtFimInput ? dtFimInput.value : '';
+
+    let dtInicio = null;
+    let dtFim = null;
+
+    if (dtInicioStr) {
+        const p = dtInicioStr.split('-');
+        dtInicio = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0);
+    }
+    if (dtFimStr) {
+        const p = dtFimStr.split('-');
+        dtFim = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59);
+    }
 
     // Filtra pelo fornecedor caso haja um selecionado, senão pega todos
     let todasDoFornecedor = fornecedor 
@@ -75,8 +91,25 @@ function gerarRelatorioFornecedor() {
         });
     }
 
+    // Aplica filtro de datas (de / até)
+    if (dtInicio || dtFim) {
+        todasDoFornecedor = todasDoFornecedor.filter(ins => {
+            const dFormat = formatarData(ins.data);
+            if (dFormat && dFormat.includes('/')) {
+                const parts = dFormat.split(' ')[0].split('/'); 
+                if (parts.length === 3) {
+                    const insDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 12, 0, 0);
+                    if (dtInicio && insDate < dtInicio) return false;
+                    if (dtFim && insDate > dtFim) return false;
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
     if (todasDoFornecedor.length === 0) {
-        alert("Nenhuma inspeção encontrada para gerar o relatório.");
+        alert("Nenhuma inspeção encontrada para os filtros selecionados.");
         return;
     }
 

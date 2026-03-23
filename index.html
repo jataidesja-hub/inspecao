@@ -172,14 +172,20 @@
 
         <!-- HISTÓRICO VIEW -->
         <div id="historicoView" style="display: none;">
-            <div class="search-bar">
-                <select id="filterPeriodoHistorico">
+            <div class="search-bar" style="flex-wrap: wrap; gap: 1rem;">
+                <select id="filterPeriodoHistorico" onchange="renderizarHistorico()">
                     <option value="">Todos os Períodos</option>
                 </select>
-                <select id="filterSupplier">
+                <div style="display: flex; gap: 0.5rem; align-items: center; background: rgba(0, 210, 255, 0.05); padding: 0.3rem 0.8rem; border-radius: 0.6rem; border: 1px solid rgba(0, 210, 255, 0.2);">
+                    <label style="color: var(--text-secondary); font-size: 0.85rem; margin:0;">De:</label>
+                    <input type="date" id="filterDataInicio" onchange="renderizarHistorico()" style="background: transparent; border: none; color: white; outline: none; font-family: inherit;">
+                    <label style="color: var(--text-secondary); font-size: 0.85rem; margin:0;">Até:</label>
+                    <input type="date" id="filterDataFim" onchange="renderizarHistorico()" style="background: transparent; border: none; color: white; outline: none; font-family: inherit;">
+                </div>
+                <select id="filterSupplier" onchange="renderizarHistorico()">
                     <option value="">Todos os Transportadores</option>
                 </select>
-                <button class="btn btn-primary" onclick="gerarRelatorioFornecedor()">
+                <button class="btn btn-primary" onclick="gerarRelatorioFornecedor()" style="flex-grow: 1;">
                     Imprimir Relatório por Transportador
                 </button>
             </div>
