@@ -57,7 +57,15 @@ function gerarPDF(dados) {
  * Gera relatório PDF por fornecedor com período
  */
 function gerarRelatorioFornecedor() {
-    const fornecedor = filterSupplier ? filterSupplier.value : '';
+    let fornecedoresSelecionados = [];
+    if (filterSupplier) {
+        for (const option of filterSupplier.options) {
+            if (option.selected && option.value !== "") {
+                fornecedoresSelecionados.push(option.value);
+            }
+        }
+    }
+
     const periodoHistorico = document.getElementById('filterPeriodoHistorico');
     const periodoFiltro = periodoHistorico ? periodoHistorico.value : '';
     
@@ -78,9 +86,9 @@ function gerarRelatorioFornecedor() {
         dtFim = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59);
     }
 
-    // Filtra pelo fornecedor caso haja um selecionado, senão pega todos
-    let todasDoFornecedor = fornecedor 
-        ? historicoInspecoes.filter(ins => ins.fornecedor === fornecedor) 
+    // Filtra pelos fornecedores selecionados caso existam, senão pega todos
+    let todasDoFornecedor = fornecedoresSelecionados.length > 0
+        ? historicoInspecoes.filter(ins => fornecedoresSelecionados.includes(ins.fornecedor)) 
         : [...historicoInspecoes];
 
     // Se houver filtro de período no histórico, aplica
@@ -125,7 +133,13 @@ function gerarRelatorioFornecedor() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(18);
-    const tituloDoc = fornecedor ? `Transportador: ${fornecedor}` : `Relatório Geral de Frota`;
+    let tituloDoc = `Relatório Geral de Frota`;
+    if (fornecedoresSelecionados.length === 1) {
+        tituloDoc = `Transportador: ${fornecedoresSelecionados[0]}`;
+    } else if (fornecedoresSelecionados.length > 1) {
+        tituloDoc = `Transportador: Múltiplos Selecionados (${fornecedoresSelecionados.length})`;
+    }
+    
     doc.text(tituloDoc, 14, 15);
     doc.setFontSize(10);
     doc.text(`Emitido em: ${new Date().toLocaleDateString('pt-BR')}`, 14, 22);
@@ -144,6 +158,12 @@ function gerarRelatorioFornecedor() {
     });
 
     const suffixPeriodo = periodoFiltro ? `_${periodoFiltro.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
-    const suffixFornecedor = fornecedor ? `_${fornecedor}` : '_Geral';
+    let suffixFornecedor = '_Geral';
+    if (fornecedoresSelecionados.length === 1) {
+        suffixFornecedor = `_${fornecedoresSelecionados[0].replace(/[^a-zA-Z0-9]/g, '_')}`;
+    } else if (fornecedoresSelecionados.length > 1) {
+        suffixFornecedor = `_Multiplos`;
+    }
+    
     doc.save(`Relatorio_Frota${suffixFornecedor}${suffixPeriodo}.pdf`);
 }

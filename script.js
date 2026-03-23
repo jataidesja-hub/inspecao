@@ -269,7 +269,17 @@ function renderizarHistorico() {
 
     // Filtros visuais
     const periodoFiltro = filterPeriodoHistorico ? filterPeriodoHistorico.value : '';
-    const fornecedorFiltro = filterSupplier ? filterSupplier.value : '';
+    
+    // Obter fornecedores selecionados
+    let fornecedoresSelecionados = [];
+    if (filterSupplier) {
+        for (const option of filterSupplier.options) {
+            if (option.selected && option.value !== "") {
+                fornecedoresSelecionados.push(option.value);
+            }
+        }
+    }
+
     const dtInicioInput = document.getElementById('filterDataInicio');
     const dtFimInput = document.getElementById('filterDataFim');
     const dtInicioStr = dtInicioInput ? dtInicioInput.value : '';
@@ -294,8 +304,8 @@ function renderizarHistorico() {
             if (periodo !== periodoFiltro) return false;
         }
 
-        // 2. Filtro Fornecedor
-        if (fornecedorFiltro && ins.fornecedor !== fornecedorFiltro) {
+        // 2. Filtro Fornecedor (múltiplos)
+        if (fornecedoresSelecionados.length > 0 && !fornecedoresSelecionados.includes(ins.fornecedor)) {
             return false;
         }
 

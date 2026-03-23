@@ -182,10 +182,10 @@
                     <label style="color: var(--text-secondary); font-size: 0.85rem; margin:0;">Até:</label>
                     <input type="date" id="filterDataFim" onchange="renderizarHistorico()" style="background: transparent; border: none; color: white; outline: none; font-family: inherit;">
                 </div>
-                <select id="filterSupplier" onchange="renderizarHistorico()">
+                <select id="filterSupplier" multiple onchange="renderizarHistorico()" style="height: 3rem; overflow-y: auto;">
                     <option value="">Todos os Transportadores</option>
                 </select>
-                <button class="btn btn-primary" onclick="gerarRelatorioFornecedor()" style="flex-grow: 1;">
+                <button class="btn btn-primary" onclick="gerarRelatorioFornecedor()" style="flex-grow: 1; align-self: flex-start;">
                     Imprimir Relatório por Transportador
                 </button>
             </div>
